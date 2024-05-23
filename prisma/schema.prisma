@@ -13,3 +13,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Items {
+  itemId   Int       @id @default(autoincrement()) @map("item_id")
+  name     String    @unique @map("name")
+  health   Int?      @map("health")
+  power    Int?      @map("power")
+  price    Int       @map("price")
+
+  @@map("items")
+}
