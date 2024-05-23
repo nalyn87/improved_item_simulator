@@ -1,3 +1,8 @@
+# 확인해보고 지울 수도 있음!!
+prisma/game
+prisma/user
+
+
 # Logs
 logs
 *.log
