@@ -2,7 +2,12 @@ import jwt from "jsonwebtoken";
 import { userPrisma } from "../utils/prisma/index.js";
 
 export default async (req, res, next) => {
-  try {
+    try {
+    if (!req.headers.authorization) {
+        next();
+        return;
+    }
+
     const { authorization } = req.headers;
     if (!authorization) {
         throw new Error("Access Token이 존재하지 않습니다!")
@@ -12,11 +17,10 @@ export default async (req, res, next) => {
     if (tokenType !== "Bearer") {
       throw new Error("토큰 타입이 일치하지 않습니다!");
     }
-
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    const signUpId = decodedToken.signUpId;
+    const userId = decodedToken.userId;
 
-    const user = await userPrisma.users.findFirst({ where: { signUpId } });
+    const user = await userPrisma.users.findFirst({ where: { userId } });
     if (!user) {
       throw new Error("토큰 사용자가 존재하지 않습니다!");
     }

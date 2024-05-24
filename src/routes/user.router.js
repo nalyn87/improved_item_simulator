@@ -11,7 +11,6 @@ router.post("/users/sign-up", async (req, res, next) => {
     const { name, signUpId, password, password_confirmed } = req.body;
 
     const regex = /^[a-z0-9]*$/;
-    console.log(regex.test(signUpId));
     if (regex.test(signUpId) === false) {
       return res
         .status(400)
@@ -67,22 +66,21 @@ router.post("/users/sign-in", async (req, res, next) => {
       return res.status(401).json({ message: "비밀번호가 일치하지 않습니다!" });
     }
 
-    const accessToken = createAccessToken();
-    
+    const accessToken = createAccessToken(user.userId);
 
     return res
       .status(200)
       .json({
         message: "로그인에 성공하였습니다!",
-        token: `authorization: Bearer ${accessToken}`,
+        authorization: `Bearer ${accessToken}`,
       });
-  } catch {
+  } catch (err) {
     next(err);
   }
 });
 
-function createAccessToken(signUpId) {
-    return jwt.sign({signUpId}, process.env.JWT_SECRET_KEY, {expiresIn: '30m'});
+function createAccessToken(userId) {
+    return jwt.sign({userId}, process.env.JWT_SECRET_KEY, {expiresIn: '1d'});
 }
 
 export default router;

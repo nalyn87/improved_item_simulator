@@ -22,7 +22,7 @@ model Users {
 model Characters {
   characterId Int    @id @default(autoincrement()) @map("character_id")
   UserId      Int    @map("user_id")
-  name        String @unique
+  name        String @unique @map("name")
   health      Int    @default(500) @map("health")
   power       Int    @default(100) @map("power")
   money       Int    @default(10000) @map("money")
