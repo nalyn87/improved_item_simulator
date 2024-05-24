@@ -67,22 +67,22 @@ router.post("/users/sign-in", async (req, res, next) => {
       return res.status(401).json({ message: "비밀번호가 일치하지 않습니다!" });
     }
 
-    const token = jwt.sign(
-      {
-        signUpId: user.signUpId,
-      },
-      process.env.JWT_SECRET_KEY
-    );
+    const accessToken = createAccessToken();
+    
 
     return res
       .status(200)
       .json({
         message: "로그인에 성공하였습니다!",
-        token: `authorization: Bearer ${token}`,
+        token: `authorization: Bearer ${accessToken}`,
       });
   } catch {
     next(err);
   }
 });
+
+function createAccessToken(signUpId) {
+    return jwt.sign({signUpId}, process.env.JWT_SECRET_KEY, {expiresIn: '30m'});
+}
 
 export default router;

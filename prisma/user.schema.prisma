@@ -13,6 +13,7 @@ model Users {
   password  String         @map("password")
   name      String         @map("name")
   signUpId  String         @unique @map("sign_up_id")
+
   Character Characters[]
 
   @@map("users")
@@ -20,11 +21,12 @@ model Users {
 
 model Characters {
   characterId Int    @id @default(autoincrement()) @map("character_id")
-  UserId      Int    @unique @map("user_id")
+  UserId      Int    @map("user_id")
   name        String @unique
   health      Int    @default(500) @map("health")
   power       Int    @default(100) @map("power")
   money       Int    @default(10000) @map("money")
+
   User        Users  @relation(fields: [UserId], references: [userId], onDelete: Cascade)
 
   @@map("characters")

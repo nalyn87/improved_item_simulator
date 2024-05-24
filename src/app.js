@@ -1,5 +1,7 @@
 import express from "express";
 import ItemRouter from './routes/items.router.js';
+import UserRouter from './routes/user.router.js';
+import CharacterRouter from './routes/characters.router.js';
 import ErrorHandlingMiddleware from './middlewares/error_handling.middleware.js';
 
 const app = express();
@@ -12,7 +14,7 @@ router.get("/", async (req, res) => {
 });
 
 app.use(express.json());
-app.use("/api", [router, ItemRouter]);
+app.use("/api", [router, ItemRouter, UserRouter, CharacterRouter]);
 app.use(ErrorHandlingMiddleware);
 
 app.listen(PORT, () => {
