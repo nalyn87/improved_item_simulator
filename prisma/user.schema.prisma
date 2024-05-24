@@ -8,11 +8,24 @@ datasource db {
   url      = env("USER_DATABASE_URL")
 }
 
-model User {
-  userId   Int    @id @default(autoincrement()) @map("user_id")
-  id       String @unique @map("id")
-  password String @map("password")
-  name     String @map("name")
+model Users {
+  userId    Int            @id @default(autoincrement()) @map("user_id")
+  password  String         @map("password")
+  name      String         @map("name")
+  signUpId  String         @unique @map("sign_up_id")
+  Character Characters[]
 
-  @@map("user")
+  @@map("users")
+}
+
+model Characters {
+  characterId Int    @id @default(autoincrement()) @map("character_id")
+  UserId      Int    @unique @map("user_id")
+  name        String @unique
+  health      Int    @default(500) @map("health")
+  power       Int    @default(100) @map("power")
+  money       Int    @default(10000) @map("money")
+  User        Users  @relation(fields: [UserId], references: [userId], onDelete: Cascade)
+
+  @@map("characters")
 }
