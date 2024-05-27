@@ -27,8 +27,8 @@ model Characters {
   power        Int    @default(100) @map("power")
   money        Int    @default(10000) @map("money")
 
-  Inventory    Inventory?
-  Equipment    Equipment?
+  Inventory    Inventory[]
+  Equipment    Equipment[]
 
   User         Users  @relation(fields: [UserId], references: [userId], onDelete: Cascade)
 
@@ -36,32 +36,19 @@ model Characters {
 }
 
 model Inventory {
-  CharacterId   Int         @unique @map("character_id")
-
-  Item Items[]
+  CharacterId   Int         @map("character_id")
+  itemId        Int         @unique @map("item_id")
+  count         Int         @map("count")
 
   Character     Characters  @relation(fields: [CharacterId], references: [characterId], onDelete: Cascade)
 
   @@map("inventory")
 }
 
-model Items {
-  id               Int         @id @default(autoincrement()) @map("id")
-  ItemId           Int         @map("item_id")
-  count            Int?        @map("count")
-  CharacterIdInv   Int?        @map("character_id_inv")
-  CharacterIdEqu   Int?        @map("character_id_eqt")
-
-  Inventory        Inventory?   @relation(fields: [CharacterIdInv], references: [CharacterId], onDelete: Cascade)
-  Equipment        Equipment?   @relation(fields: [CharacterIdEqu], references: [CharacterId], onDelete: Cascade)
-  
-  @@map("items")
-}
-
 model Equipment {
-  CharacterId   Int         @unique @map("character_id")
+  CharacterId   Int         @map("character_id")
+  itemId        Int         @unique @map("item_id")
 
-  Item Items[]
 
   Character     Characters  @relation(fields: [CharacterId], references: [characterId], onDelete: Cascade)
 

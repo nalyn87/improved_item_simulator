@@ -29,19 +29,6 @@ router.post("/characters", authMiddleware, async (req, res, next) => {
       },
     });
     
-    const inventory = await userPrisma.inventory.create({
-      data: {
-        CharacterId: character.characterId,
-        Item: {},
-      },
-    });
-
-    const equipment = await userPrisma.equipment.create({
-      data: {
-        CharacterId: character.characterId,
-      },
-    });
-
     return res.status(200).json({ data: character });
   } catch (err) {
     next(err);
@@ -87,6 +74,9 @@ router.get("/characters/:characterId", authMiddleware, async (req, res, next) =>
     try {
       const { characterId } = req.params;
       const targetUser = await userPrisma.characters.findFirst({where: {characterId: +characterId}});
+      if (!targetUser) {
+        return res.status(404).json({message: '해당하는 캐릭터가 존재하지 않습니다!'})
+      }
 
       let check = true;
       if (!req.user) {

@@ -17,20 +17,22 @@ router.patch('/make-money/:characterId', authMiddleware, async (req, res, next) 
       const {characterId} = req.params;
       const {userId} = req.user;
   
-      // 해당 아이디로 만든 캐릭터인지 확인
       const character = await userPrisma.characters.findFirst({
         where: {
-            characterId: +characterId,
+          characterId: +characterId,
         }
       })
-      if (character.UserId !== userId) {
-        return res.status(401).json({message: '다른 계정으로 만들어진 캐릭터입니다!'})
-      }
-  
+      
       // 캐릭터가 존재하는지 확인
       if (!character) {
         return res.status(404).json({ message: "해당 캐릭터가 존재하지 않습니다!" });
       }
+      
+      // 해당 아이디로 만든 캐릭터인지 확인
+      if (character.UserId !== userId) {
+        return res.status(401).json({message: '다른 계정으로 만들어진 캐릭터입니다!'})
+      }
+  
 
       const patchedCharacter = await userPrisma.characters.update({
         where: {characterId: +characterId},
