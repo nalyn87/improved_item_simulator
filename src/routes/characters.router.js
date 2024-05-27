@@ -28,6 +28,19 @@ router.post("/characters", authMiddleware, async (req, res, next) => {
         name,
       },
     });
+    
+    const inventory = await userPrisma.inventory.create({
+      data: {
+        CharacterId: character.characterId,
+        Item: {},
+      },
+    });
+
+    const equipment = await userPrisma.equipment.create({
+      data: {
+        CharacterId: character.characterId,
+      },
+    });
 
     return res.status(200).json({ data: character });
   } catch (err) {
