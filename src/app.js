@@ -3,6 +3,7 @@ import ItemRouter from './routes/items.router.js';
 import UserRouter from './routes/user.router.js';
 import CharacterRouter from './routes/characters.router.js';
 import InventoryRouter from './routes/inventory.router.js';
+import MakeMoneyRouter from './routes/make_money.router.js';
 import ErrorHandlingMiddleware from './middlewares/error_handling.middleware.js';
 
 const app = express();
@@ -15,7 +16,7 @@ router.get("/", async (req, res) => {
 });
 
 app.use(express.json());
-app.use("/api", [router, ItemRouter, UserRouter, CharacterRouter, InventoryRouter]);
+app.use("/api", [router, ItemRouter, UserRouter, CharacterRouter, InventoryRouter, MakeMoneyRouter]);
 app.use(ErrorHandlingMiddleware);
 
 app.listen(PORT, () => {
