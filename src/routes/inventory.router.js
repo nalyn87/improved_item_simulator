@@ -110,12 +110,12 @@ router.patch('/buy-items/:characterId', authMiddleware, async (req, res, next) =
       })
     }
 
-    const leftMoney = await userPrisma.characters.update({
+    const patchedCharacter = await userPrisma.characters.update({
       where: {characterId: +characterId},
       data: {money: character.money - (item.price * count)}
     })
 
-    return res.status(201).json({message: '정상적으로 구매가 되었습니다!', '잔액': leftMoney.money})
+    return res.status(201).json({message: '정상적으로 구매가 되었습니다!', '잔액': patchedCharacter.money})
   } catch (err) {
     next(err);
   }
@@ -177,19 +177,18 @@ router.patch('/sell-items/:characterId', authMiddleware, async (req, res, next) 
       where: {itemId: +itemId}
     })
 
-    const leftMoney = await userPrisma.characters.update({
+    const patchedCharacter = await userPrisma.characters.update({
       where: {characterId: +characterId},
       data: {
         money: character.money + (item.price * count * 3/5)
       }
     })
 
-    return res.status(200).json({message: '정상적으로 판매되었습니다!', '잔액': leftMoney.money})
+    return res.status(200).json({message: '정상적으로 판매되었습니다!', '잔액': patchedCharacter.money})
   } catch (err) {
     next(err);
   }
 })
-
 
 
 
