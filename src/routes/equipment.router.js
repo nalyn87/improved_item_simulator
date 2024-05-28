@@ -205,7 +205,7 @@ router.delete("/unequip/:characterId", authMiddleware, async (req, res, next) =>
         });
         if (!itemInEqu) {
           return res
-            .status(400)
+            .status(404)
             .json({ message: `아이템 '${i.itemId}'을/를 장착하고 있지 않습니다!` });
         }
     }
@@ -269,7 +269,7 @@ router.delete("/unequip/:characterId", authMiddleware, async (req, res, next) =>
     }
 
     return res
-      .status(201)
+      .status(200)
       .json({ message: "아이템이 정상적으로 탈착되었습니다!"});
   } catch (err) {
     next(err);

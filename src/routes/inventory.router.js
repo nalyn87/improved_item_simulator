@@ -109,7 +109,7 @@ router.patch(
         // 갯수가 올바른지 확인
         if (data.count < 1) {
           return res
-            .status(404)
+            .status(400)
             .json({ message: "아이템의 갯수가 올바르지 않습니다!" });
         }
 
@@ -232,7 +232,7 @@ router.patch(
         // 갯수가 올바른지 확인
         if (data.count < 1 || data.count > characterInventory.count) {
           return res
-            .status(404)
+            .status(400)
             .json({ message: "아이템의 갯수가 올바르지 않습니다!" });
         }
 
