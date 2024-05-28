@@ -41,7 +41,11 @@ router.get(
       }
 
       const characterInventory = await userPrisma.inventory.findMany({
-        where: { CharacterId: +characterId }
+        where: { CharacterId: +characterId },
+        select: {
+          itemId: true,
+          count: true,
+        }
       });
 
       return res.status(200).json({ characterInventory });
@@ -119,34 +123,48 @@ router.patch(
           .json({ message: "소유하고 있는 돈이 충분하지 않습니다!" });
       }
 
-      for (const data of itemData) {
-        const characterInventory = await userPrisma.inventory.findFirst({
-          where: {
-            itemId: data.itemId,
-            CharacterId: +characterId,
-          },
-        });
 
-        if (!characterInventory) {
-          await userPrisma.inventory.create({
-            data: {
-              CharacterId: +characterId,
+      for (const data of itemData) {
+        await userPrisma.$transaction( async (tx) => {
+          const characterInventory = await userPrisma.inventory.findFirst({
+            where: {
               itemId: data.itemId,
-              count: data.count,
+              CharacterId: +characterId,
             },
           });
-        } else {
-          await userPrisma.inventory.update({
-            where: { itemId: data.itemId},
-            data: { count: characterInventory.count + data.count },
+  
+          if (!characterInventory) {
+            await tx.inventory.create({
+              data: {
+                CharacterId: +characterId,
+                itemId: data.itemId,
+                count: data.count,
+              },
+            });
+          } else {
+            await tx.inventory.updateMany({
+              where: {
+                itemId: data.itemId,
+                CharacterId: +characterId
+              },
+              data: { count: characterInventory.count + data.count },
+            });
+          }
+  
+          const item = await gamePrisma.items.findFirst({
+            where: {itemId: data.itemId}
+          })
+  
+          await tx.characters.update({
+            where: { characterId: +characterId },
+            data: { money: character.money - sum },
           });
-        }
-
+        })
       }
-      const patchedCharacter = await userPrisma.characters.update({
-        where: { characterId: +characterId },
-        data: { money: character.money - sum },
-      });
+
+      const patchedCharacter = await userPrisma.characters.findFirst({
+        where: {characterId: +characterId}
+      })
 
       return res.status(201).json({
         message: "정상적으로 구매가 되었습니다!",
@@ -208,7 +226,7 @@ router.patch(
         if (!characterInventory) {
           return res
             .status(404)
-            .json({ message: "해당 아이템이 인벤토리에 없습니다!" });
+            .json({ message: `아이템 '${data.itemId}'이/가 인벤토리에 없습니다!` });
         }
 
         // 갯수가 올바른지 확인
@@ -219,37 +237,57 @@ router.patch(
         }
 
         const item = await gamePrisma.items.findFirst({
-          where: {itemId: data.itemId}
+          where: {
+            itemId: data.itemId,
+            CharacterId: characterId,
+          }
         })
         sum += item.price * data.count * 3/5;
       }
 
       for (const data of itemData) {
-        const item = await userPrisma.inventory.findFirst({
-          where: {
-            itemId: data.itemId,
-          },
-        });
-
-        if (item.count === data.count) {
-          await userPrisma.inventory.delete({
-            where: { itemId: data.itemId},
-          });
-        } else {
-          await userPrisma.inventory.update({
-            where: { itemId: data.itemId},
-            data: {
-              count: item.count - data.count,
+        await userPrisma.$transaction( async (tx) => {
+          const itemInInv = await userPrisma.inventory.findFirst({
+            where: {
+              itemId: data.itemId,
+              CharacterId: characterId,
             },
           });
-        }
+  
+          if (itemInInv.count === data.count) {
+            await tx.inventory.delete({
+              where: { 
+                temId: data.itemId,
+                CharacterId: characterId,
+              },
+            });
+          } else {
+            await tx.inventory.updateMany({
+              where: {
+                itemId: data.itemId,
+                CharacterId: characterId,
+              },
+              data: {
+                count: itemInInv.count - data.count,
+              },
+            });
+          }
+
+          const item = await gamePrisma.items.findFirst({
+            where: {itemId: data.itemId}
+          })
+
+          await tx.characters.update({
+            where: {characterId: +characterId},
+            data: {
+              money: character.money + item.price
+            }
+          })
+        })
       }
 
-      const patchedCharacter = await userPrisma.characters.update({
-        where: {characterId: +characterId},
-        data: {
-          money: character.money + sum
-        }
+      const patchedCharacter = await userPrisma.characters.findFirst({
+        where: {characterId: +characterId}
       })
 
       return res.status(200).json({
