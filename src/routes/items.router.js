@@ -1,5 +1,6 @@
 import express from "express";
 import { gamePrisma } from "../utils/prisma/index.js";
+import { userPrisma } from "../utils/prisma/index.js";
 
 const router = express.Router();
 
@@ -48,6 +49,29 @@ router.patch("/items/:itemId", async (req, res, next) => {
       },
       where: { itemId: +itemId },
     });
+    
+    const itemsInEqu = await userPrisma.equipment.findMany({
+      where: {
+        itemId: +itemId
+      }
+    })
+
+    const character = await userPrisma.characters.findMany({
+      where: {characterId: itemsInEqu.CharacterId}
+    })
+
+    const changePower = updatedItem.power - itemInfo.power;
+    const changeHealth = updatedItem.health - itemInfo.health;
+
+    for (const char of character) {
+      await userPrisma.characters.update({
+        where: {characterId: char.characterId},
+        data: {
+          power: (char.power + changePower),
+          health: (char.health + changeHealth)
+        }
+      })
+    }
 
     return res.status(200).json({ message: "아이템 수정이 완료되었습니다!" });
   } catch (err) {
