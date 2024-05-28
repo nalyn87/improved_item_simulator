@@ -29,7 +29,7 @@ router.post("/characters", authMiddleware, async (req, res, next) => {
       },
     });
     
-    return res.status(200).json({ data: character });
+    return res.status(200).json({ message: '캐릭터가 정상적으로 생성되었습니다!', character });
   } catch (err) {
     next(err);
   }

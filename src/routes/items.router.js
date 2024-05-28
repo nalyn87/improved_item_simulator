@@ -22,7 +22,7 @@ router.post("/items", async (req, res, next) => {
       },
     });
 
-    return res.status(201).json({ item });
+    return res.status(201).json({ message: '아이템이 정상적으로 생성되었습니다!', item });
   } catch (err) {
     next(err);
   }
