@@ -95,10 +95,6 @@ router.get("/characters/:characterId", authMiddleware, async (req, res, next) =>
         },
       });
 
-      if (!character) {
-        return res.status(404).json({ message: "존재하지 않는 캐릭터입니다!" });
-      }
-
       return res.status(200).json({ character });
     } catch (err) {
       next(err);
